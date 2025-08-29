@@ -75,7 +75,7 @@ const AdminDashboard = () => {
     try {
       const userEmail = localStorage.getItem("userEmail")
       setLoading(true);
-        const usersResponse = await fetch('/api/admin/users', {
+        const usersResponse = await fetch('/api/users', {
         headers: {
           "Content-Type": "application/json",
           "x-user-email": userEmail
