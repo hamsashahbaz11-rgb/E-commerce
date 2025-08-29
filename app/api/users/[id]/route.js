@@ -1,33 +1,31 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
-import { ObjectId } from 'mongodb';
+import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
-import User from '@/models/User';
+import User from '@/models/User'; 
+import { isAuthenticated } from '@/lib/auth';
 
 // GET user by ID
 export async function GET(request, { params }) {
-  try {
-    // console.log("params" , params)
-    const { id } = params; 
-
-    console.log("id" , id)
+  try { 
+    const requestyUser = isAuthenticated(request);
+    if(!requestyUser){
+      return NextResponse.json({error: "UnAuthorized Request"}, {status: 404})
+    }
+    const { id } = await params;
+ 
     
     if (!id) {
       return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
     }
 
-    const { db } = await connectDB();
+     await connectDB();
+     
+    const objectId = new mongoose.Types.ObjectId(id)
     
-    // Convert string ID to ObjectId
-    const objectId = new ObjectId(id);
-    
-    // Find user by ID
-    const user = await User.findOne(
-      { _id: objectId },
-      { projection: { password: 0 } } // Exclude password
-    );
-    
-    if (!user) {
+  
+    const user  = await User.findById(objectId) 
+    if (!user) { 
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
     
@@ -54,7 +52,7 @@ export async function PATCH(request, { params }) {
     // Add updatedAt timestamp
     safeUpdateData.updatedAt = new Date();
 
-    const { db } = await connectToDatabase();
+    await connectDB();
     const objectId = new ObjectId(id);
     
     // Update user
@@ -92,7 +90,7 @@ export async function DELETE(request, { params }) {
       return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
     }
 
-    const { db } = await connectToDatabase();
+    await connectDB();
     const objectId = new ObjectId(id);
     
     // Delete user

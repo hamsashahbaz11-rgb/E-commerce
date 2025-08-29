@@ -48,7 +48,12 @@ const countries = [
       name: "Brazil",
       code: "BR",
       cities: ["São Paulo", "Rio de Janeiro", "Brasília", "Salvador", "Fortaleza"]
-    }
+    },
+    {
+      name: "Pakistan",
+      code: "Pk",
+      cities: ["Gujranwala", "Islamabad", "Lahore", "Sailkot", "Faislabad"]
+    },
   ];
   
   export default countries;

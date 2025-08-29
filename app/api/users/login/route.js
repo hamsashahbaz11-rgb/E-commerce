@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import mongoose from 'mongoose';
+import User from '@/models/User';
+
 
 export async function POST(request) {
   try {
@@ -15,18 +16,6 @@ export async function POST(request) {
 
     // Connect to database
     await connectDB();
-    
-    const User = mongoose.models.User || mongoose.model('User', new mongoose.Schema({
-      name: String,
-      email: String,
-      password: String,
-      role: String,
-      createdAt: Date,
-      updatedAt: Date,
-      cart: Array,
-      wishlist: Array,
-      orders: Array
-    }));
     
     // Find user
     const user = await User.findOne({ email });

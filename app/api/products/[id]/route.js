@@ -2,64 +2,73 @@ import { NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import Product from '@/models/Product';
 import mongoose from 'mongoose'; 
+import { ObjectId } from 'mongodb';
 
 export async function GET(req, { params }) {
-  try {
-    console.log('GET /api/products/[id] - Start with params:', params);
+  try { 
     
-    
-    // const productId = params._id;
-    const {id} = params;
-    const productId = id;
+    const {id} = await params;
+    const productId = new ObjectId(id)
 
-    
-    if (!productId) {
+    if(!productId) {
       console.error('No product ID provided');
       return NextResponse.json(
-        { error: 'Product ID is required' },
+        { error: 'Product ID is required', details: 'The product ID parameter is missing' },
         { status: 400 }
       );
     }
+ 
 
-    console.log('Product ID:', productId);
-
-    // Validate if the ID is a valid MongoDB ObjectId
-    if (!productId || !mongoose.Types.ObjectId.isValid(productId)){
-      console.error('Invalid product ID format:', productId);
+     if(!mongoose.Types.ObjectId.isValid(productId)) {
+      console.error('Invalid MongoDB ObjectId format:', productId);
       return NextResponse.json(
-        { error: 'Invalid product ID format' },
+        { 
+          error: 'Invalid product ID format', 
+          details: ''
+        },
         { status: 400 }
       );
     }
     
-    await connectDB();
-    console.log('Database connected, attempting to find product');
-
-    const product = await Product.findOne({ _id: new mongoose.Types.ObjectId(productId) });
- 
-    console.log('Product found:', product ? 'yes' : 'no');
-
-    if (!product) {
-      console.log('Product not found with ID:', productId);
+    try {
+      await connectDB(); 
+    } catch (dbError) {
+      console.error('Database connection failed:', dbError);
       return NextResponse.json(
-        { error: `Product not found with ID: ${productId}` },
-        { status: 404 }
-      );
-    }
-
-    // Ensure the product has an _id
-    if (!product._id) {
-      console.error('Product missing _id:', product);
-      return NextResponse.json(
-        { error: 'Product data is invalid - missing _id' },
+        { 
+          error: 'Database connection failed', 
+          details: process.env.NODE_ENV === 'development' ? dbError.message : 'Internal server error'
+        },
         { status: 500 }
       );
     }
 
-    console.log('Successfully found product:', product._id);
+    const product = await Product.findById(productId).exec(); 
+
+    if (!product) { 
+      return NextResponse.json(
+        { 
+          error: 'Product not found', 
+          details: `No product exists with ID: ${productId}`
+        },
+        { status: 404 }
+      );
+    }
+
+    if (!product._id) {
+      console.error('Invalid product data - missing _id:', product);
+      return NextResponse.json(
+        { 
+          error: 'Invalid product data', 
+          details: 'The product data is corrupted or incomplete'
+        },
+        { status: 500 }
+      );
+    }
+ 
     return NextResponse.json({
       success: true,
-      product 
+      product
     });
   } catch (error) {
     console.error('Error in product fetch:', error);

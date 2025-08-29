@@ -18,12 +18,7 @@ const ProductSchema = new mongoose.Schema(
       required: [true, 'Please provide a product price'],
       min: [0, 'Price must be a positive number'],
     },
-    discountPercentage: {
-      type: Number,
-      default: 0,
-      min: [0, 'Discount percentage must be between 0 and 100'],
-      max: [100, 'Discount percentage must be between 0 and 100'],
-    },
+ 
     category: {
       type: String,
       required: [true, 'Please provide a product category'],
@@ -38,9 +33,15 @@ const ProductSchema = new mongoose.Schema(
     },
     images: [
       {
-        type: String,
+     url: {
+         type: String,
         required: [true, 'Please provide at least one product image'],
-      },
+     },
+     public_id: {
+      type: String,
+      required: true,
+     }
+     },
     ],
     brand: {
       type: String,
@@ -62,26 +63,26 @@ const ProductSchema = new mongoose.Schema(
         type: String,
       },
     ],
-    ratings: [
-      {
-        user: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: 'User',
-          required: true,
+      ratings: [
+        {
+          user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true,
+          },
+          rating: {
+            type: Number,
+            required: true,
+            min: 1,
+            max: 5,
+          },
+          review: String,
+          date: {
+            type: Date,
+            default: Date.now,
+          },
         },
-        rating: {
-          type: Number,
-          required: true,
-          min: 1,
-          max: 5,
-        },
-        review: String,
-        date: {
-          type: Date,
-          default: Date.now,
-        },
-      },
-    ],
+      ],
     averageRating: {
       type: Number,
       default: 0,
@@ -90,9 +91,28 @@ const ProductSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+     discountPercentage: {
+      type: Number,
+      default: 0,
+      min: [0, 'Discount percentage must be between 0 and 100'],
+      max: [100, 'Discount percentage must be between 0 and 100'],
+    },
+    discountStartDate: {
+      type: Date,
+      default: null
+    },
+    discountEndDate: {
+      type: Date,
+      default: null
+    },
     featured: {
       type: Boolean,
       default: false,
+    },
+    realprice: {
+      type: Number,
+      required: false,
+      default: 0
     },
     seller: {
       type: mongoose.Schema.Types.ObjectId,
@@ -102,6 +122,7 @@ const ProductSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+ 
 
 // Calculate average rating when ratings are modified
 ProductSchema.pre('save', function (next) {

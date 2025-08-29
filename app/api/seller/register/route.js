@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import connectDB from '@/app/lib/db';
-import User from '@/app/models/User';
+import connectDB from '@/lib/db';
+import User from '@/models/User';
 
 export async function POST(req) {
   try {
@@ -64,4 +64,4 @@ export async function POST(req) {
       { status: 500 }
     );
   }
-} 
+}

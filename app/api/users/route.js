@@ -2,26 +2,14 @@ import { NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import mongoose from 'mongoose';
+import User from '@/models/User';
 
 // GET all users (admin only)
 export async function GET(request) {
   try {
     await connectDB();
-    const User = mongoose.models.User || mongoose.model('User', new mongoose.Schema({
-      name: String,
-      email: String,
-      password: String,
-      role: String,
-      createdAt: Date,
-      updatedAt: Date,
-      cart: Array,
-      wishlist: Array,
-      orders: Array
-    }));
-    
-    const users = await User.find({}, { password: 0 }).lean();
-    
+    const users = await User.find({}).select('-password'); 
+     
     return NextResponse.json({ users }, { status: 200 });
   } catch (error) {
     console.error('Error fetching users:', error);
@@ -42,18 +30,6 @@ export async function POST(request) {
     // Connect to database
     await connectDB();
     
-    const User = mongoose.models.User || mongoose.model('User', new mongoose.Schema({
-      name: String,
-      email: String,
-      password: String,
-      role: String,
-      createdAt: Date,
-      updatedAt: Date,
-      cart: Array,
-      wishlist: Array,
-      orders: Array
-    }));
-    
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -70,8 +46,6 @@ export async function POST(request) {
       email,
       password: hashedPassword,
       role,
-      createdAt: new Date(),
-      updatedAt: new Date(),
       cart: [],
       wishlist: [],
       orders: []
@@ -83,7 +57,7 @@ export async function POST(request) {
     const token = jwt.sign(
       { id: savedUser._id, email, role },
       process.env.JWT_SECRET || 'your-secret-key',
-      { expiresIn: '7d' }
+      { expiresIn: '70d' }
     );
 
     // Return user without password

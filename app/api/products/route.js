@@ -4,13 +4,11 @@ import Product from '@/models/Product';
 
 
 export async function GET(req) {
-  try {
-    console.log('GET /api/products - Start');
-    
+  try { 
+
     // Connect to database
     try {
-      await connectDB();
-      console.log('Database connected successfully');
+      await connectDB(); 
     } catch (dbError) {
       console.error('Database connection error:', dbError);
       return NextResponse.json(
@@ -18,74 +16,71 @@ export async function GET(req) {
         { status: 500 }
       );
     }
-    
+
     // Get query parameters
     const url = new URL(req.url);
     const category = url.searchParams.get('category');
+    const subcategory = url.searchParams.get('subcategory');
     const limit = parseInt(url.searchParams.get('limit') || '200');
     const page = parseInt(url.searchParams.get('page') || '1');
     const sort = url.searchParams.get('sort') || '-createdAt';
-    
-    console.log('Query params:', { category, limit, page, sort });
-    console.log("this is ")
-    
+    const minPrice = url.searchParams.get('minPrice');
+    const maxPrice = url.searchParams.get('maxPrice');
+    const hasDiscount = url.searchParams.get('hasDiscount');
+    const inStock = url.searchParams.get('inStock');
+    const minRating = url.searchParams.get('minRating');
+
+     
     // Build query
     const query = {};
-    if (category && category !== 'all') {
+    if (category && category !== 'all' || (subcategory && subcategory !== 'all')) {
       query.category = category;
+      query.subcategory = subcategory;
     }
-    
-    // Count total products for pagination
-    const total = await Product.countDocuments(query);
-    console.log(`Total products found: ${total}`);
 
-    // // If no products exist, create a test product
-    // if (total === 0) {
-    //   console.log('No products found. Creating test product...');
-    //   try {
-    //     const testProduct = await Product.create({
-    //       name: 'Test Product',
-    //       price: 99.99,
-    //       description: 'This is a test product',
-    //       images: ["/men2.jpeg"],
-    //       category: 'men',
-    //       subcategory: 'clothing',
-    //       brand: 'Test Brand',
-    //       stock: 10,
-    //       averageRating: 4.5,
-    //       numReviews: 10,
-    //       seller: '65f2d8b9c4f8a3e2d1c0b9a8',
-    //       sizes: ['S', 'M', 'L', 'XL'],
-    //       colors: ['Black', 'White'],
-    //       featured: false
-    //     });
-    //     console.log('Test product created:', testProduct);
-    //   } catch (createError) {
-    //     console.error('Error creating test product:', createError);
-    //     console.error('Error details:', JSON.stringify(createError, null, 2));
-    //   }
-    // }
-    
+    // Add price filter
+    if (minPrice || maxPrice) {
+      query.price = {};
+      if (minPrice) query.price.$gte = parseFloat(minPrice);
+      if (maxPrice) query.price.$lte = parseFloat(maxPrice);
+    }
+
+    // Add discount filter
+    if (hasDiscount === 'true') {
+      query.discountPercentage = { $gt: 0 };
+    }
+
+    // Add stock filter
+    if (inStock === 'true') {
+      query.stock = { $gt: 0 };
+    } else if (inStock === 'false') {
+      query.stock = 0;
+    }
+
+    // Add rating filter
+    if (minRating) {
+      query.averageRating = { $gte: parseFloat(minRating) };
+    }
+
+    // Count total products for pagination
+    const total = await Product.countDocuments(query); 
+
+
     // Fetch products with all fields and ensure _id is included
     const products = await Product.find(query)
       .sort(sort)
       .limit(limit)
       .skip((page - 1) * limit)
       .lean(); // Convert to plain JavaScript objects
-    
-    console.log(`Found ${products.length} products`);
-    if (products.length > 0) {
-      // Log the first product's ID to verify it exists
-      console.log('First product ID:', products[0]._id);
-      console.log('Sample product:', JSON.stringify(products[0], null, 2));
-    }
-    
+
+     
+
     // Ensure each product has an _id
-        const productsWithIds = products.map(product => ({
+    const productsWithIds = products.map(product => ({
       ...product,
       _id: product._id.toString() // Convert ObjectId to string
     }));
-    
+
     return NextResponse.json({
       success: true,
       count: productsWithIds.length,
@@ -101,4 +96,4 @@ export async function GET(req) {
       { status: 500 }
     );
   }
-} 
+}

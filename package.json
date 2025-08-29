@@ -4,22 +4,31 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "dev:all": "concurrently \"npm:dev\" \"npm:cron:dev\"",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
+    "cloudinary": "^2.7.0",
+    "date-fns": "^4.1.0",
+    "dotenv": "^16.5.0",
     "framer-motion": "^12.4.10",
     "jsonwebtoken": "^9.0.2",
+    "lucide-react": "^0.535.0",
     "mongodb": "^6.14.2",
     "mongoose": "^8.12.1",
     "next": "15.2.1",
     "next-auth": "^4.24.11",
+    "node-cron": "^4.2.1",
+    "nodemailer": "^6.10.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hot-toast": "^2.5.2",
     "react-icons": "^5.5.0",
+    "react-toastify": "^11.0.5",
+    "styled-components": "^6.1.19",
     "swiper": "^11.2.5"
   },
   "devDependencies": {
@@ -27,6 +36,7 @@
     "@tailwindcss/postcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "15.2.1",
-    "tailwindcss": "^4"
+    "tailwindcss": "^4",
+    "vercel-cron": "^1.3.0"
   }
 }

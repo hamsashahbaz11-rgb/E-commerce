@@ -26,7 +26,25 @@ const OrderSchema = new mongoose.Schema(
           type: Number,
           required: true,
         },
-        image: String,
+        images: [
+          {
+            url: {
+              type: String,
+              required: true
+            },
+            public_id: {
+              type: String, 
+              required: true
+            }
+          }
+
+        ]
+        ,
+        sellerId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Product',
+          requied: true
+        }
       },
     ],
     shippingAddress: {
@@ -54,6 +72,8 @@ const OrderSchema = new mongoose.Schema(
     paymentMethod: {
       type: String,
       required: true,
+      enum: ['Credit Card', 'Cash on Delivery'],
+      default: 'Credit Card'
     },
     paymentResult: {
       id: String,
@@ -74,7 +94,7 @@ const OrderSchema = new mongoose.Schema(
     shippingPrice: {
       type: Number,
       required: true,
-      default: 0.0,
+      default: 15.0,
     },
     totalPrice: {
       type: Number,
@@ -100,11 +120,65 @@ const OrderSchema = new mongoose.Schema(
     status: {
       type: String,
       required: true,
-      enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],
+      enum: ['pending', 'processing', 'out_for_delivery', 'delivered', 'cancelled'],
       default: 'pending',
+    },
+    deliveryMan: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    deliveryStatus: {
+      type: String,
+      enum: ['unassigned', 'assigned', 'processing', 'out_for_delivery', 'delivered'],
+      default: 'unassigned'
+    },
+    statusHistory: [{
+      status: String,
+      timestamp: Date,
+      updatedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+      }
+    }],
+    deliveryEarnings: {
+      type: Number,
+      default: 0
+    },
+    isReturned: {
+      type: Boolean,
+      default: false
+    },
+    returnRequest: {
+      status: {
+        type: String,
+        enum: ['none', 'pending', 'approved', 'rejected', 'completed'],
+        default: 'none'
+      },
+      requestDate: Date,
+      reason: String,
+      processedDate: Date,
+      scheduledDate: Date,
+      processedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+      }
+    }, 
+    coupon: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Coupon',
+    },
+    couponDiscount: {
+      type: Number,
+      default: 0,
+    },
+    reviewStatus: {
+      type: String,
+      enum: ['pending', 'completed'],
+      default: 'pending'
     },
   },
   { timestamps: true }
 );
 
-export default mongoose.models.Order || mongoose.model('Order', OrderSchema); 
+const Order = mongoose.models.Order || mongoose.model('Order', OrderSchema)
+export default Order;

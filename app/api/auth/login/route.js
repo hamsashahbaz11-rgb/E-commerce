@@ -7,16 +7,13 @@ import jwt from 'jsonwebtoken';
 export async function POST(req) {
   try {
     await connectDB(); 
-    const { email, password } = await req.json(); 
-     
-
-    // Find user and include password field
+    const { email, password } = await req.json();  
     const user = await User.findOne({ email }).select('+password');
-
-    // Verify user exists and password matches
-    if (!user || !(await bcrypt.compare(password.toString(), user.password))) {
+     // Verify user exists and password matches
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+    // if(!user || !(user.password == password)){
       return NextResponse.json(
-        { error: 'Invalid credentials' },
+        { error: `Invalid credentials ` },
         { status: 401 }
       );
     }
@@ -25,10 +22,15 @@ export async function POST(req) {
     const token = jwt.sign(
       { id: user._id },
       process.env.JWT_SECRET,
-      { expiresIn: '30d' }
+      { expiresIn: '300d' }
     );
-
-    return NextResponse.json({ token });
+ 
+    // Return user data and token in response
+    return NextResponse.json({
+      userId: user._id,
+      token: token,
+      email: user.email
+    });
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json(
