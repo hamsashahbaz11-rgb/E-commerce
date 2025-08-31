@@ -8,7 +8,7 @@ const url = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL
 }
 
 export async function generateMetadata({ params }) {
-  const id = await params.id; // no await
+  const id = params.id; // no await
   const objProduct = await getProduct(id);
   const product = objProduct.product
 

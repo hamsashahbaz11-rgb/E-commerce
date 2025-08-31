@@ -5,7 +5,7 @@ import mongoose from 'mongoose';
 
 export async function GET(req, { params }) {
   try {
-    const { id } = await params; 
+    const { id } = params; 
 
     if (!id) {
       return NextResponse.json(

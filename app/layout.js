@@ -4,6 +4,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import { defaultMetadata } from './metadata';
 import { Toaster } from 'react-hot-toast';
+import ErrorBoundary from "./components/Errorboundary";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,10 +28,13 @@ export default function RootLayout({ children }) {
         <link rel="icon" href="/favicon.ico" />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased `}> 
+          <ErrorBoundary>
+
         <Navbar />
           {children}
         <Footer /> 
           <Toaster position="top-right" />
+          </ErrorBoundary>
       </body>
     </html>
   );
