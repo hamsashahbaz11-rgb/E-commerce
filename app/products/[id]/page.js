@@ -21,7 +21,7 @@ const ProductDetail = () => {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [wishlistLoading, setWishlistLoading] = useState(false);
   const [relatedProducts, setRelatedProducts] = useState([]);
-
+  const [isClient, setIsClient] = useState(false);
   // Enhanced variant management
   const [selectedColor, setSelectedColor] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
@@ -62,6 +62,11 @@ const ProductDetail = () => {
     // This can be enhanced to support variant-specific pricing
     return product?.price * (1 - (product?.discountPercentage || 0) / 100);
   };
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -208,6 +213,22 @@ const ProductDetail = () => {
 
     fetchRelatedProducts();
   }, [product]);
+
+const getStorageItem = (key) => {
+    if (!isClient || typeof window === 'undefined') return null;
+    try {
+      return localStorage.getItem(key);
+    } catch (error) {
+      console.error('LocalStorage access error:', error);
+      return null;
+    }
+  };
+
+
+  const setStorageValue = (key, value) => {
+    if (!isClient || typeof window === 'undefined') return;
+    localStorage.setItem(key, value);
+  }; 
 
   const handleQuantityChange = (change) => {
     const newQuantity = quantity + change;
@@ -385,73 +406,127 @@ const ProductDetail = () => {
     }
   };
 
-  const handleWishlist = async () => {
+  if (!isClient) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  } 
+
+  // const handleWishlist = async () => {
+  //   try {
+  //     setWishlistLoading(true);
+
+  //     let userId, token;
+
+  //     if (typeof window !== 'undefined') {
+  //       userId = localStorage.getItem('userId');
+  //       token = localStorage.getItem('token');
+  //     }
+
+  //     if (!userId || !token) {
+  //       router.push('/auth/login');
+  //       return;
+  //     }
+
+  //     const { id } = params;
+  //     const productId = id;
+
+  //     if (isWishlisted) {
+  //       const res = await fetch(`/api/wishlist`, {
+  //         method: 'DELETE',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //         },
+  //         body: JSON.stringify({
+  //           userId,
+  //           productId,
+  //         })
+  //       });
+
+  //       const data = await res.json();
+
+  //       if (res.ok) {
+  //         setIsWishlisted(false);
+  //         showToast.success('Removed from wishlist');
+  //       } else {
+  //         toast.error(data.error || 'Failed to remove from wishlist');
+  //       }
+  //     } else {
+  //       const res = await fetch(`/api/wishlist`, {
+  //         method: 'POST',
+  //         headers: {
+  //           'Content-Type': 'application/json'
+  //         },
+  //         body: JSON.stringify({
+  //           userId,
+  //           productId,
+  //         })
+  //       });
+
+  //       const data = await res.json();
+
+  //       if (res.ok) {
+  //         setIsWishlisted(true);
+  //         showToast.success('Added to wishlist');
+  //       } else {
+  //         toast.error(data.error || 'Failed to add to wishlist');
+  //       }
+  //     }
+  //   } catch (error) {
+  //     showToast.error(error.message || 'Failed to update wishlist. Please try again.');
+  //   } finally {
+  //     setWishlistLoading(false);
+  //   }
+  // };
+
+   const handleWishlist = async () => {
     try {
       setWishlistLoading(true);
 
-      let userId, token;
+      if (!isClient) return;
 
-      if (typeof window !== 'undefined') {
-        userId = localStorage.getItem('userId');
-        token = localStorage.getItem('token');
-      }
+      const userId = getStorageValue('userId');
+      const token = getStorageValue('token');
 
       if (!userId || !token) {
+        setStorageValue('redirectAfterLogin', window.location.pathname);
         router.push('/auth/login');
         return;
       }
 
-      const { id } = params;
-      const productId = id;
+      const productId = params.id;
+      const method = isWishlisted ? 'DELETE' : 'POST';
+      const url = '/api/wishlist/check';
 
-      if (isWishlisted) {
-        const res = await fetch(`/api/wishlist`, {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            userId,
-            productId,
-          })
-        });
+      const res = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          userId,
+          productId,
+        })
+      });
 
-        const data = await res.json();
+      const data = await res.json();
 
-        if (res.ok) {
-          setIsWishlisted(false);
-          showToast.success('Removed from wishlist');
-        } else {
-          toast.error(data.error || 'Failed to remove from wishlist');
-        }
+      if (res.ok) {
+        setIsWishlisted(!isWishlisted);
+        toast.success(isWishlisted ? 'Removed from wishlist' : 'Added to wishlist');
       } else {
-        const res = await fetch(`/api/wishlist`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            userId,
-            productId,
-          })
-        });
-
-        const data = await res.json();
-
-        if (res.ok) {
-          setIsWishlisted(true);
-          showToast.success('Added to wishlist');
-        } else {
-          toast.error(data.error || 'Failed to add to wishlist');
-        }
+        throw new Error(data.error || `Failed to ${isWishlisted ? 'remove from' : 'add to'} wishlist`);
       }
     } catch (error) {
-      showToast.error(error.message || 'Failed to update wishlist. Please try again.');
+      console.error('Wishlist error:', error);
+      toast.error(error.message || 'Failed to update wishlist. Please try again.');
     } finally {
       setWishlistLoading(false);
     }
   };
-
   const renderStars = (rating) => {
     return [...Array(5)].map((_, i) => (
       <span key={i} className={`text-lg ${i < Math.floor(rating) ? 'text-yellow-400' : 'text-gray-300'}`}>
@@ -477,9 +552,10 @@ const ProductDetail = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+           <div className="min-h-screen bg-gray-50">
         <div className="container mx-auto py-8 px-4">
           <div className="animate-pulse">
+
             <div className="grid md:grid-cols-2 gap-8">
               <div>
                 <div className="h-96 bg-gray-200 rounded-lg mb-4"></div>
