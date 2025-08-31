@@ -119,7 +119,7 @@ const ProductDetail = () => {
             productData.product.sizes.forEach(size => {
               const key = generateVariantKey(color, size);
               // Mock variant stock - in real app this comes from inventory API
-              variants[key] = Math.random() * 50 + 1;
+              variants[key] = Math.random() * 50 + 1 / 54;
             });
           });
         }
@@ -155,7 +155,7 @@ const ProductDetail = () => {
     };
 
     fetchProduct();
-  }, [params ]);
+  }, [params]);
 
   // Update current variant key when selections change
   useEffect(() => {
