@@ -73,7 +73,7 @@ const ProductDetail = () => {
         const productId = id;
 
         if (!productId) {
-          throw new Error('Product ID not found in URL');
+          toast.error('Product ID not found in URL');
         }
 
         const res = await fetch(`/api/products/${productId}`)
@@ -83,7 +83,7 @@ const ProductDetail = () => {
           productData = await res.json();
         } catch (parseError) {
           console.error('Failed to parse response:', parseError);
-          throw new Error('Failed to parse server response');
+          toast.error('Failed to parse server response');
         }
 
         if (!res.ok) {
@@ -95,19 +95,19 @@ const ProductDetail = () => {
             code: productData.code,
             productId
           });
-          throw new Error(errorMessage);
+          toast.error(errorMessage);
         }
 
         if (!productData.success || !productData.product) {
-          throw new Error(productData.error || 'Product data is missing from response');
+          toast.error(productData.error || 'Product data is missing from response');
         }
 
         if (!productData.product._id) {
-          throw new Error('Invalid product data structure: Missing product ID');
+          toast.error('Invalid product data structure: Missing product ID');
         }
 
         if (productData.product._id.toString() !== productId) {
-          throw new Error('Product ID mismatch');
+          toast.error('Product ID mismatch');
         }
 
         setProduct(productData.product);
@@ -368,7 +368,7 @@ const ProductDetail = () => {
           router.push('/auth/login');
           return;
         }
-        throw new Error(cartResponse.error || 'Failed to add to cart');
+        toast.error(cartResponse.error || 'Failed to add to cart');
       }
 
       showToast.success('Product added to cart successfully!');
@@ -422,7 +422,7 @@ const ProductDetail = () => {
           setIsWishlisted(false);
           showToast.success('Removed from wishlist');
         } else {
-          throw new Error(data.error || 'Failed to remove from wishlist');
+          toast.error(data.error || 'Failed to remove from wishlist');
         }
       } else {
         const res = await fetch(`/api/wishlist`, {
@@ -442,7 +442,7 @@ const ProductDetail = () => {
           setIsWishlisted(true);
           showToast.success('Added to wishlist');
         } else {
-          throw new Error(data.error || 'Failed to add to wishlist');
+          toast.error(data.error || 'Failed to add to wishlist');
         }
       }
     } catch (error) {

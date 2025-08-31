@@ -213,30 +213,7 @@ const AccountPage = () => {
       </div>
     ));
   };
-  // const hanldeReturnUndelivered = async (orderId) => {
-  //   try {
-
-  //     const response = await fetch("/api/orders/return", {
-  //       method: "DELETE",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         "Authorization": `Bearer ${localStorage.getItem("token")}`
-  //       },
-
-  //       body: JSON.stringify(orderId)
-  //     })
-
-  //     if (!response.ok) {
-  //       toast.error(error)
-  //       return;
-  //     }
-
-  //     toast.success("Order returned successfully")
-
-  //   } catch (error) {
-  //     toast.error(error)
-  //   }
-  // }
+   
 
   const getReturningOrders = async () => {
     try {
