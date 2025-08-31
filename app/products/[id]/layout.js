@@ -1,4 +1,3 @@
-import { headers } from 'next/headers';
 
 async function getProduct(id) { 
 const url = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL
@@ -8,7 +7,7 @@ const url = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL
 }
 
 export async function generateMetadata({ params }) {
-  const id = params.id; // no await
+  const id = (await params).id; // no await
   const objProduct = await getProduct(id);
   const product = objProduct.product
 

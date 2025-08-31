@@ -8,7 +8,7 @@ import { AlertCircle, CheckCircle, Clock, Filter, Fullscreen, MapPin, Package, S
 import { formatDistanceToNow } from 'date-fns';
 import Link from 'next/link';
 import { showToast } from '@/app/utils/toast';
-import toast from 'react-hot-toast';
+import toast from 'react-hot-toast'; 
 
 const ProductDetail = () => {
   const params = useParams();
@@ -21,7 +21,7 @@ const ProductDetail = () => {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [wishlistLoading, setWishlistLoading] = useState(false);
   const [relatedProducts, setRelatedProducts] = useState([]);
-  const [isClient, setIsClient] = useState(false);
+
   // Enhanced variant management
   const [selectedColor, setSelectedColor] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
@@ -62,11 +62,6 @@ const ProductDetail = () => {
     // This can be enhanced to support variant-specific pricing
     return product?.price * (1 - (product?.discountPercentage || 0) / 100);
   };
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -124,11 +119,25 @@ const ProductDetail = () => {
             productData.product.sizes.forEach(size => {
               const key = generateVariantKey(color, size);
               // Mock variant stock - in real app this comes from inventory API
-              variants[key] = Math.floor(Math.random() * 50) + 1;
+              variants[key] = Math.random() * 50 + 1;
             });
           });
         }
         setVariantStock(variants);
+
+        if (product) {
+      const variants = {};
+      if (product.colors && product.sizes) {
+        product.colors.forEach((color, colorIndex) => {
+          product.sizes.forEach((size, sizeIndex) => {
+            const key = generateVariantKey(color, size);
+            // Use deterministic values instead of random
+            variants[key] = Math.max(1, product.stock - (colorIndex + sizeIndex));
+          });
+        });
+      }
+      setVariantStock(variants);
+    }
 
         // Set default selections only if variants exist
         if (productData.product.colors && productData.product.colors.length > 0) {
@@ -146,7 +155,7 @@ const ProductDetail = () => {
     };
 
     fetchProduct();
-  }, [params]);
+  }, [params ]);
 
   // Update current variant key when selections change
   useEffect(() => {
@@ -158,7 +167,7 @@ const ProductDetail = () => {
     if (quantity > maxStock) {
       setQuantity(Math.max(1, Math.min(quantity, maxStock)));
     }
-  }, [selectedColor, selectedSize]);
+  }, [selectedColor, selectedSize ]);
 
   // Check if product is in wishlist on component mount
   useEffect(() => {
@@ -213,22 +222,6 @@ const ProductDetail = () => {
 
     fetchRelatedProducts();
   }, [product]);
-
-const getStorageItem = (key) => {
-    if (!isClient || typeof window === 'undefined') return null;
-    try {
-      return localStorage.getItem(key);
-    } catch (error) {
-      console.error('LocalStorage access error:', error);
-      return null;
-    }
-  };
-
-
-  const setStorageValue = (key, value) => {
-    if (!isClient || typeof window === 'undefined') return;
-    localStorage.setItem(key, value);
-  }; 
 
   const handleQuantityChange = (change) => {
     const newQuantity = quantity + change;
@@ -406,127 +399,73 @@ const getStorageItem = (key) => {
     }
   };
 
-  if (!isClient) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
-      </div>
-    );
-  } 
-
-  // const handleWishlist = async () => {
-  //   try {
-  //     setWishlistLoading(true);
-
-  //     let userId, token;
-
-  //     if (typeof window !== 'undefined') {
-  //       userId = localStorage.getItem('userId');
-  //       token = localStorage.getItem('token');
-  //     }
-
-  //     if (!userId || !token) {
-  //       router.push('/auth/login');
-  //       return;
-  //     }
-
-  //     const { id } = params;
-  //     const productId = id;
-
-  //     if (isWishlisted) {
-  //       const res = await fetch(`/api/wishlist`, {
-  //         method: 'DELETE',
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //         },
-  //         body: JSON.stringify({
-  //           userId,
-  //           productId,
-  //         })
-  //       });
-
-  //       const data = await res.json();
-
-  //       if (res.ok) {
-  //         setIsWishlisted(false);
-  //         showToast.success('Removed from wishlist');
-  //       } else {
-  //         toast.error(data.error || 'Failed to remove from wishlist');
-  //       }
-  //     } else {
-  //       const res = await fetch(`/api/wishlist`, {
-  //         method: 'POST',
-  //         headers: {
-  //           'Content-Type': 'application/json'
-  //         },
-  //         body: JSON.stringify({
-  //           userId,
-  //           productId,
-  //         })
-  //       });
-
-  //       const data = await res.json();
-
-  //       if (res.ok) {
-  //         setIsWishlisted(true);
-  //         showToast.success('Added to wishlist');
-  //       } else {
-  //         toast.error(data.error || 'Failed to add to wishlist');
-  //       }
-  //     }
-  //   } catch (error) {
-  //     showToast.error(error.message || 'Failed to update wishlist. Please try again.');
-  //   } finally {
-  //     setWishlistLoading(false);
-  //   }
-  // };
-
-   const handleWishlist = async () => {
+  const handleWishlist = async () => {
     try {
       setWishlistLoading(true);
 
-      if (!isClient) return;
+      let userId, token;
 
-      const userId = getStorageValue('userId');
-      const token = getStorageValue('token');
+      if (typeof window !== 'undefined') {
+        userId = localStorage.getItem('userId');
+        token = localStorage.getItem('token');
+      }
 
       if (!userId || !token) {
-        setStorageValue('redirectAfterLogin', window.location.pathname);
         router.push('/auth/login');
         return;
       }
 
-      const productId = params.id;
-      const method = isWishlisted ? 'DELETE' : 'POST';
-      const url = '/api/wishlist/check';
+      const { id } = params;
+      const productId = id;
 
-      const res = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          userId,
-          productId,
-        })
-      });
+      if (isWishlisted) {
+        const res = await fetch(`/api/wishlist`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId,
+            productId,
+          })
+        });
 
-      const data = await res.json();
+        const data = await res.json();
 
-      if (res.ok) {
-        setIsWishlisted(!isWishlisted);
-        toast.success(isWishlisted ? 'Removed from wishlist' : 'Added to wishlist');
+        if (res.ok) {
+          setIsWishlisted(false);
+          showToast.success('Removed from wishlist');
+        } else {
+          toast.error(data.error || 'Failed to remove from wishlist');
+        }
       } else {
-        throw new Error(data.error || `Failed to ${isWishlisted ? 'remove from' : 'add to'} wishlist`);
+        const res = await fetch(`/api/wishlist`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            userId,
+            productId,
+          })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          setIsWishlisted(true);
+          showToast.success('Added to wishlist');
+        } else {
+          toast.error(data.error || 'Failed to add to wishlist');
+        }
       }
     } catch (error) {
-      console.error('Wishlist error:', error);
-      toast.error(error.message || 'Failed to update wishlist. Please try again.');
+      showToast.error(error.message || 'Failed to update wishlist. Please try again.');
     } finally {
       setWishlistLoading(false);
     }
   };
+
   const renderStars = (rating) => {
     return [...Array(5)].map((_, i) => (
       <span key={i} className={`text-lg ${i < Math.floor(rating) ? 'text-yellow-400' : 'text-gray-300'}`}>
@@ -552,10 +491,9 @@ const getStorageItem = (key) => {
 
   if (loading) {
     return (
-           <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50">
         <div className="container mx-auto py-8 px-4">
           <div className="animate-pulse">
-
             <div className="grid md:grid-cols-2 gap-8">
               <div>
                 <div className="h-96 bg-gray-200 rounded-lg mb-4"></div>
@@ -625,6 +563,7 @@ const getStorageItem = (key) => {
                   src={product.images[selectedImageIndex]?.url || product.images[0]?.url}
                   alt={`${product.name} - View ${selectedImageIndex + 1}`}
                   fill={true}
+                  priority={false}
                   className="object-cover hover:scale-105 transition-transform duration-700 absolute"
                   sizes="(max-width: 1024px) 100vw, 50vw"
                 />
@@ -1352,6 +1291,7 @@ const getStorageItem = (key) => {
     </div>
   );
 };
+
 
 
 export default ProductDetail;

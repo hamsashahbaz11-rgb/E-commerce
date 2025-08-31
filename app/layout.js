@@ -6,6 +6,7 @@ import { defaultMetadata } from './metadata';
 import { Toaster } from 'react-hot-toast';
 import ErrorBoundary from "./components/Errorboundary";
 
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],

@@ -16,11 +16,9 @@ const verifyToken = (authHeader) => {
 // GET - Check if product is in user's wishlist
 export async function GET(req) {
   try {
-    // const url = new URL(req.url);
-    const userId = await req.json()
-    const productId = await req.json()
-    // const userId = url.searchParams.get('userId');
-    // const productId = url.searchParams.get('productId');
+    const url = new URL(req.url); 
+    const userId = url.searchParams.get('userId');
+    const productId = url.searchParams.get('productId');
     const authHeader = req.headers.get('authorization');
 
     // Verify token
