@@ -21,6 +21,9 @@
 // next.config.js
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  reactStrictMode: false, // Temporarily disable for debugging
+  swcMinify: true,
+ 
   experimental: {
     serverComponentsExternalPackages: [], // Add problematic packages here if needed
   },
