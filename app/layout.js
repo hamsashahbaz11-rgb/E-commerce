@@ -29,13 +29,12 @@ export default function RootLayout({ children }) {
         <link rel="icon" href="/favicon.ico" />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased `}> 
-          <ErrorBoundary>
-
+          {/* <ErrorBoundary> */}
         <Navbar />
           {children}
         <Footer /> 
           <Toaster position="top-right" />
-          </ErrorBoundary>
+          {/* </ErrorBoundary> */}
       </body>
     </html>
   );
