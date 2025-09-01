@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
-import { motion, AnimatePresence } from 'framer-motion'; 
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   FaBell,
   FaCog,
@@ -20,7 +20,7 @@ import {
   FaStar,
   FaShoppingBag,
   FaTimes
-} from 'react-icons/fa';  
+} from 'react-icons/fa';
 import CouponModal from '../components/CouponModal';
 import { FaTicketAlt } from 'react-icons/fa';
 import Link from 'next/link';
@@ -37,7 +37,7 @@ const AdminDashboard = () => {
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState('all');
-     const [coupons, setCoupons] = useState([]);
+  const [coupons, setCoupons] = useState([]);
   const [showCouponModal, setShowCouponModal] = useState(false);
   const [selectedCoupon, setSelectedCoupon] = useState(null);
 
@@ -64,46 +64,51 @@ const AdminDashboard = () => {
 
     checkAdminAccess();
   }, [router]);
- 
+
   useEffect(() => {
-    if (isAuthorized) { 
+    if (isAuthorized) {
       fetchData();
     }
-  }, [isAuthorized ]);  
+  }, [isAuthorized]);
 
   const fetchData = async () => {
     try {
       const userEmail = localStorage.getItem("userEmail")
       setLoading(true);
+<<<<<<< Updated upstream
         const usersResponse = await fetch('/api/users', {
+=======
+      const usersResponse = await fetch('/api/users', {
+
+>>>>>>> Stashed changes
         headers: {
           "Content-Type": "application/json",
           "x-user-email": userEmail
         }
       });
-      const usersData = await usersResponse.json(); 
+      const usersData = await usersResponse.json();
       setUsers(usersData.users);
- 
+
       const sellersResponse = await fetch('/api/admin/sellers');
-      const sellersData = await sellersResponse.json() 
+      const sellersData = await sellersResponse.json()
       setSellers(sellersData.sellers);
- 
+
       const userId = localStorage.getItem('userId');
-      const couponsResponse = await fetch(`/api/coupons?userId=${userId} `,{
-        method: "GET", 
+      const couponsResponse = await fetch(`/api/coupons?userId=${userId} `, {
+        method: "GET",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
           "Content-Type": "application/json"
-        } 
+        }
       });
       const couponsData = await couponsResponse.json();
-      if(!couponsData.coupons) return
-      if(!couponsData.coupons.length){
+      if (!couponsData.coupons) return
+      if (!couponsData.coupons.length) {
         setCoupons([])
       }
 
       setCoupons(couponsData.coupons);
- 
+
 
     } catch (error) {
       toast.error('Error fetching data');
@@ -114,7 +119,7 @@ const AdminDashboard = () => {
   };
 
   const handleDeleteUser = async (userId) => {
-    try { 
+    try {
       const response = await fetch(`/api/admin/users/${userId}`, {
         method: 'DELETE',
       });
@@ -133,7 +138,7 @@ const AdminDashboard = () => {
   };
 
 
- 
+
   const handleAddCoupon = () => {
     setSelectedCoupon(null);
     setShowCouponModal(true);
@@ -163,7 +168,29 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleApproveSeller = async (sellerId) => {
+    try {
+      const response = await fetch(`/api/admin/sellers/approve`, {
+        method: 'PUT',
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(sellerId)
+      }
+      )
 
+      if (!response.ok) {
+        toast.error(response.message)
+      }
+      else {
+        toast.success("Seller approved successfully");
+      }
+
+
+    } catch (error) {
+      toast.error(error)
+    }
+  }
 
   const filteredUsers = users?.filter(user => {
     const matchesSearch = user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -200,9 +227,9 @@ const AdminDashboard = () => {
   }
 
   if (!isAuthorized) {
-    return null;  
+    return null;
   }
- 
+
   const stats = {
     totalUsers: users.length,
     totalSellers: sellers.length,
@@ -226,10 +253,12 @@ const AdminDashboard = () => {
             >
               Admin Dashboard
             </motion.h1>
-            
+
             <div className="text-white text-lg font-medium flex items-center gap-2 hover:text-gray-300 transition-colors cursor-pointer">
-              <Link2 size={20} />
-              <span>Assign Delivery</span>
+              <Link href={`/adminOrderAssignment`}>
+                <Link2 size={20} />
+                <span>Assign Delivery</span>
+              </Link>
             </div>
           </div>
         </div>
@@ -281,11 +310,10 @@ const AdminDashboard = () => {
               whileHover={{ y: -1 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
-                activeTab === tab.id
-                  ? 'bg-white text-black'
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white border border-gray-700'
-              }`}
+              className={`flex items-center px-6 py-3 rounded-lg font-medium transition-all duration-300 ${activeTab === tab.id
+                ? 'bg-white text-black'
+                : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white border border-gray-700'
+                }`}
             >
               <tab.icon className="mr-2" />
               {tab.label}
@@ -375,11 +403,10 @@ const AdminDashboard = () => {
                     <div className="text-white font-semibold text-lg mb-1">{user.name}</div>
                     <div className="text-gray-400 text-sm mb-3">{user.email}</div>
                     <div className="flex items-center justify-between">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        user.role === 'admin' ? 'bg-red-900 text-red-300' :
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${user.role === 'admin' ? 'bg-red-900 text-red-300' :
                         user.role === 'seller' ? 'bg-blue-900 text-blue-300' :
-                        'bg-green-900 text-green-300'
-                      }`}>
+                          'bg-green-900 text-green-300'
+                        }`}>
                         {user.role}
                       </span>
                       <span className="text-gray-500 text-xs">
@@ -586,9 +613,8 @@ const AdminDashboard = () => {
                     <p>Discount: {coupon.discountAmount}{coupon.discountType === 'percentage' ? '%' : ' USD'}</p>
                     <p>Valid until: {new Date(coupon.endDate).toLocaleDateString()}</p>
                     <p>Used: {coupon.usedCount} times</p>
-                    <div className={`inline-block px-2 py-1 rounded text-sm ${
-                      coupon.isActive ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'
-                    }`}>
+                    <div className={`inline-block px-2 py-1 rounded text-sm ${coupon.isActive ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'
+                      }`}>
                       {coupon.isActive ? 'Active' : 'Inactive'}
                     </div>
                   </div>
@@ -634,7 +660,7 @@ const AdminDashboard = () => {
                     <FaTimes className="text-gray-400" />
                   </motion.button>
                 </div>
-                
+
                 <div className="space-y-4">
                   <input
                     type="text"
@@ -676,8 +702,8 @@ const AdminDashboard = () => {
           )}
         </AnimatePresence>
       </div>
-    </div>
-  );
+    </div>
+  );
 };
 
 export default AdminDashboard;

@@ -6,10 +6,11 @@ import { checkAdminAccess } from '../middleware';
 // Get all users
 export async function GET(request) {
   try {
-// Get user email from request headers or session
+    // Get user email from request headers or session
     const userEmail = request.headers.get('x-user-email');
-    
-    if (!checkAdminAccess(userEmail)) { 
+    console.log(userEmail)
+
+    if (!checkAdminAccess(userEmail)) {
 
       return NextResponse.json({ error: 'Unauthorized access' }, { status: 401 });
     }
@@ -28,7 +29,7 @@ export async function POST(request) {
   try {
     await connectDB();
     const userData = await request.json();
-    
+
     // Check if email already exists
     const existingUser = await User.findOne({ email: userData.email });
     if (existingUser) {
@@ -40,11 +41,11 @@ export async function POST(request) {
 
     // Create new user
     const user = await User.create(userData);
-    
+
     // Remove password from response
     const userResponse = user.toObject();
     delete userResponse.password;
-    
+
     return NextResponse.json(userResponse);
   } catch (error) {
     console.error('Error creating user:', error);

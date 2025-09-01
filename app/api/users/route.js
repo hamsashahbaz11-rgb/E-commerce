@@ -17,60 +17,78 @@ export async function GET(request) {
   }
 }
 
-// POST - Register a new user
+
 export async function POST(request) {
   try {
-    const { name, email, password, role = 'customer' } = await request.json();
+    const { name, email, password, role = "customer" } = await request.json();
 
     // Validate input
     if (!name || !email || !password) {
-      return NextResponse.json({ error: 'Name, email, and password are required' }, { status: 400 });
+      return NextResponse.json(
+        { error: "Name, email, and password are required" },
+        { status: 400 }
+      );
     }
 
     // Connect to database
     await connectDB();
-    
+
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return NextResponse.json({ error: 'User with this email already exists' }, { status: 409 });
+      return NextResponse.json(
+        { error: "User with this email already exists" },
+        { status: 409 }
+      );
     }
 
     // Hash password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    // Determine role
+    let finalRole = role;
+    if (email === process.env.EMAIL) {
+      finalRole = "admin";
+    }
+
     // Create new user
     const newUser = new User({
       name,
       email,
       password: hashedPassword,
-      role,
+      role: finalRole,
       cart: [],
       wishlist: [],
-      orders: []
+      orders: [],
     });
 
     const savedUser = await newUser.save();
-    
+
     // Create JWT token
     const token = jwt.sign(
-      { id: savedUser._id, email, role },
-      process.env.JWT_SECRET || 'your-secret-key',
-      { expiresIn: '70d' }
+      { id: savedUser._id, email, role: savedUser.role },
+      process.env.JWT_SECRET || "your-secret-key",
+      { expiresIn: "70d" }
     );
 
     // Return user without password
     const userResponse = savedUser.toObject();
     delete userResponse.password;
-    
-    return NextResponse.json({ 
-      message: 'User registered successfully',
-      user: userResponse,
-      token
-    }, { status: 201 });
+
+    return NextResponse.json(
+      {
+        message: "User registered successfully",
+        user: userResponse,
+        token,
+      },
+      { status: 201 }
+    );
   } catch (error) {
-    console.error('Error registering user:', error);
-    return NextResponse.json({ error: 'Failed to register user' }, { status: 500 });
+    console.error("Error registering user:", error);
+    return NextResponse.json(
+      { error: "Failed to register user" },
+      { status: 500 }
+    );
   }
 }

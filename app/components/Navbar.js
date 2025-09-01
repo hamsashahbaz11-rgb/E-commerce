@@ -15,7 +15,7 @@ import {
   FaChevronDown,
 } from "react-icons/fa";
 import { useRouter } from "next/navigation";
-import { AnimatePresence, motion } from "framer-motion"; 
+import { AnimatePresence, motion } from "framer-motion";
 const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -23,7 +23,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
 
-   
+
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -57,7 +57,7 @@ const Navbar = () => {
   }, []);
 
   return (
-    <nav className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-b border-slate-700 p-4 shadow-2xl sticky top-0 z-50 px-6 lg:px-32 backdrop-blur-lg w-full"> 
+    <nav className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-b border-slate-700 p-4 shadow-2xl sticky top-0 z-50 px-6 lg:px-32 backdrop-blur-lg w-full">
       <div className="flex justify-between items-center w-full">
         {/* Logo */}
         <Link href="/" className="group flex items-center space-x-2">
@@ -132,9 +132,9 @@ const Navbar = () => {
           </Link>
 
           <Link href="/about" className="group flex items-center space-x-2 text-slate-200 hover:text-white px-4 py-2 rounded-lg hover:bg-slate-700/50 transition">
-                  <FaStore className="text-lg" />
-                  <span className="hidden lg:block">About us</span>
-                </Link>
+            <FaStore className="text-lg" />
+            <span className="hidden lg:block">About us</span>
+          </Link>
 
           {/* Authentication */}
           {isAuthenticated ? (
@@ -145,20 +145,20 @@ const Navbar = () => {
                   <span className="hidden lg:block">Become Seller</span>
                 </Link>
               )}
-               {userRole === "seller" && (
+              {userRole === "seller" && (
                 <Link href="/seller" className="group flex items-center space-x-2 text-slate-200 hover:text-white px-4 py-2 rounded-lg hover:bg-slate-700/50 transition">
                   <FaStore className="text-lg" />
                   <span className="hidden lg:block">Seller Dashboard</span>
                 </Link>
               )}
-             {userRole === "admin" && (
+              {userRole === "admin" && (
                 <Link href="/admin" className="group flex items-center space-x-2 text-slate-200 hover:text-white px-4 py-2 rounded-lg hover:bg-slate-700/50 transition">
                   <FaStore className="text-lg" />
                   <span className="hidden lg:block">Admin Dashboard</span>
                 </Link>
               )}
-                           {userRole === "deliveryman" && (
-                <Link href="/admin" className="group flex items-center space-x-2 text-slate-200 hover:text-white px-4 py-2 rounded-lg hover:bg-slate-700/50 transition">
+              {userRole === "deliveryman" && (
+                <Link href="/delivery" className="group flex items-center space-x-2 text-slate-200 hover:text-white px-4 py-2 rounded-lg hover:bg-slate-700/50 transition">
                   <FaStore className="text-lg" />
                   <span className="hidden lg:block">Deliery Dashboard</span>
                 </Link>
@@ -181,6 +181,7 @@ const Navbar = () => {
               </button>
             </div>
           ) : (
+
             <Link href="/auth/login" className="group flex items-center space-x-2 bg-slate-700 border border-slate-600 text-slate-200 hover:text-white px-6 py-2 rounded-full font-medium hover:bg-slate-600 transition">
               <FaUser className="text-lg" />
               <span>Login</span>
@@ -215,6 +216,30 @@ const Navbar = () => {
                 <Link href="/account" className="flex items-center text-slate-200 hover:text-white">
                   <FaUser className="mr-2" /> Account
                 </Link>
+                {userRole === "customer" && (
+                  <Link href="/seller-apply" className="flex items-center text-slate-200 hover:text-white">
+                    <FaStore className="mr-2" />
+                    <span className="hidden lg:block">Become Seller</span>
+                  </Link>
+                )}
+                {userRole === "seller" && (
+                  <Link href="/seller" className="flex items-center text-slate-200 hover:text-white">
+                    <FaStore className="mr-2" />
+                    <span className="hidden lg:block">Seller Dashboard</span>
+                  </Link>
+                )}
+                {userRole === "admin" && (
+                  <Link href="/admin" className="flex items-center text-slate-200 hover:text-white">
+                    <FaStore className="mr-2" />
+                    <span className="hidden lg:block">Admin Dashboard</span>
+                  </Link>
+                )}
+                {userRole === "deliveryman" && (
+                  <Link href="/delivery" className="flex items-center text-slate-200 hover:text-white">
+                    <FaStore className="mr-2" />
+                    <span className="hidden lg:block">Deliery Dashboard</span>
+                  </Link>
+                )}
 
                 <button
                   onClick={() => {

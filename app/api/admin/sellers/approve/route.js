@@ -5,7 +5,7 @@ import connectDB from '@/lib/db';
 
 export async function POST(req, { params }) {
     try {
-        const { sellerId } = req.body;
+        const { sellerId } = await req.json();
  
 
         await connectDB();
@@ -24,9 +24,9 @@ export async function POST(req, { params }) {
                 "sellerInfo.approved": true
             },
             { new: true }); 
-        // if(!updatedSeller) {
-        //      return NextResponse.json({ error: "Could  not update Approve Status" }, { status: 404 });
-        // }
+        if(!updatedSeller) {
+             return NextResponse.json({ error: "Could  not update Approve Status" }, { status: 404 });
+        }
 
         return NextResponse.json({ message: "Seller approved Successfully" });
     } catch (error) {

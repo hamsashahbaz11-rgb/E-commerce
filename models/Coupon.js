@@ -60,9 +60,7 @@
     },
     { timestamps: true }
   );
-
-  // Add an index for faster coupon code lookups
-  CouponSchema.index({ code: 1 });
+ 
 
   // Add validation to ensure endDate is after startDate
   CouponSchema.pre('save', function (next) {
