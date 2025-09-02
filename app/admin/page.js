@@ -75,12 +75,8 @@ const AdminDashboard = () => {
     try {
       const userEmail = localStorage.getItem("userEmail")
       setLoading(true);
-<<<<<<< Updated upstream
-        const usersResponse = await fetch('/api/users', {
-=======
-      const usersResponse = await fetch('/api/users', {
 
->>>>>>> Stashed changes
+        const usersResponse = await fetch('/api/users', {
         headers: {
           "Content-Type": "application/json",
           "x-user-email": userEmail
