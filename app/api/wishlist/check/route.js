@@ -24,7 +24,7 @@ export async function GET(req) {
     // Verify token
     try {
       const decoded = verifyToken(authHeader);
-      if (decoded.userId !== userId) {
+      if (decoded.id !== userId) {
         return NextResponse.json({
           error: 'Unauthorized: User ID mismatch'
         }, { status: 401 });

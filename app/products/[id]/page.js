@@ -400,28 +400,28 @@ import { toast, Toaster } from 'react-hot-toast';
 import { Star } from 'lucide-react';
 
 
-export async function getServerSideProps(context) {
-  const { id } = await context.params;
-  try {
-    const res = await fetch(`https:localhost:3000/api/products/${id}`);
-    const productData = await res.json();
-    if (!res.ok || !productData.success || !productData.product) {
-      return { notFound: true };
-    }
-    return {
-      props: {
-        initialProduct: productData.product,
-      },
-    };
-  } catch (error) {
-    return { notFound: true };
-  }
-}
+// export async function getServerSideProps(context) {
+//   const { id } = await context.params;
+//   try {
+//     const res = await fetch(`https:localhost:3000/api/products/${id}`);
+//     const productData = await res.json();
+//     if (!res.ok || !productData.success || !productData.product) {
+//       return { notFound: true };
+//     }
+//     return {
+//       props: {
+//         initialProduct: productData.product,
+//       },
+//     };
+//   } catch (error) {
+//     return { notFound: true };
+//   }
+// }
 
-const ProductDetail = ({ initialProduct }) => {
+const ProductDetail = () => {
   const params = useParams();
   const router = useRouter();
-  const [product, setProduct] = useState(initialProduct);
+  const [product, setProduct] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [addingToCart, setAddingToCart] = useState(false);
@@ -436,11 +436,13 @@ const ProductDetail = ({ initialProduct }) => {
   const [currentVariantKey, setCurrentVariantKey] = useState('');
 
   const getLocalStorageItem = (key) => {
-    if (typeof window !== 'undefined') {
+    if (typeof(window) !== 'undefined') {
       return localStorage.getItem(key);
     }
     return null;
   };
+
+   
 
   const generateVariantKey = (color, size) => {
     return `${color || 'no-color'}_${size || 'no-size'}`;
@@ -467,6 +469,8 @@ const ProductDetail = ({ initialProduct }) => {
   };
 
   useEffect(() => {
+
+
     if (product) {
       const variants = {};
       if (product.colors && product.sizes) {
@@ -494,18 +498,36 @@ const ProductDetail = ({ initialProduct }) => {
     if (quantity > maxStock) {
       setQuantity(Math.max(1, Math.min(quantity, maxStock)));
     }
-  }, [selectedColor, selectedSize, quantity]);
+  }, [selectedColor, selectedSize]);
 
   useEffect(() => {
+     const fetchProduct = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`/api/products/${params.id}`);
+        const productData = await res.json();
+        if (!res.ok || !productData.success || !productData.product) {
+          return { notFound: true };
+        }
+         console.log("Product fetched successfully:", productData.product);
+        setProduct(productData.product);
+        setLoading(false);
+        setError(null); 
+      } catch (error) {
+        return { notFound: true };
+      }
+    }
+    fetchProduct();
+
     const checkWishlistStatus = async () => {
       if (!product) return;
       try {
         const userId = getLocalStorageItem('userId');
         const token = getLocalStorageItem('token');
         if (!userId || !token) return;
-        const res = await fetch(`/api/wishlist/check?userId=${userId}&productId=${product._id}`, {
+        const res = await fetch(`/api/wishlist/check?userId=${userId}&productId=${params.id}`, {
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        });
+        }); 
         if (res.ok) {
           const data = await res.json();
           setIsWishlisted(data.isWishlisted || false);
@@ -517,7 +539,7 @@ const ProductDetail = ({ initialProduct }) => {
       }
     };
     checkWishlistStatus();
-  }, [product]);
+  }, [ params.id]);
 
   useEffect(() => {
     const fetchRelatedProducts = async () => {
@@ -779,7 +801,7 @@ const ProductDetail = ({ initialProduct }) => {
 
   const recentReviews = getRecentReviews(product.ratings);
   const currentStock = getCurrentVariantStock();
-  
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
       <div className="container mx-auto py-8 px-4">
@@ -833,11 +855,10 @@ const ProductDetail = ({ initialProduct }) => {
                     <motion.button
                       key={index}
                       onClick={() => setSelectedImageIndex(index)}
-                      className={`flex-shrink-0 w-20 h-20 rounded-2xl overflow-hidden border-2 transition-all ${
-                        selectedImageIndex === index
+                      className={`flex-shrink-0 w-20 h-20 rounded-2xl overflow-hidden border-2 transition-all ${selectedImageIndex === index
                           ? 'border-amber-400 ring-2 ring-amber-400/50 shadow-xl shadow-amber-400/20'
                           : 'border-gray-600/40 hover:border-gray-500/60 hover:shadow-lg'
-                      }`}
+                        }`}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >
@@ -877,11 +898,10 @@ const ProductDetail = ({ initialProduct }) => {
                   {product.numReviews || 0} reviews
                 </span>
                 <span
-                  className={`px-4 py-2 rounded-full text-sm font-medium backdrop-blur-sm border ${
-                    currentStock > 0
+                  className={`px-4 py-2 rounded-full text-sm font-medium backdrop-blur-sm border ${currentStock > 0
                       ? 'bg-gradient-to-r from-emerald-500/20 to-green-500/20 text-emerald-300 border-emerald-500/20'
                       : 'bg-gradient-to-r from-red-500/20 to-pink-500/20 text-red-300 border-red-500/20'
-                  }`}
+                    }`}
                 >
                   {currentStock > 0 ? `${currentStock} In Stock` : 'Out of Stock'}
                 </span>
@@ -938,13 +958,12 @@ const ProductDetail = ({ initialProduct }) => {
                           key={index}
                           onClick={() => isAvailable && handleColorSelect(color)}
                           disabled={!isAvailable}
-                          className={`group relative w-16 h-16 rounded-2xl border-3 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:ring-offset-gray-900 ${
-                            !isAvailable
+                          className={`group relative w-16 h-16 rounded-2xl border-3 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:ring-offset-gray-900 ${!isAvailable
                               ? 'opacity-50 cursor-not-allowed border-gray-700'
                               : isSelected
-                              ? 'border-amber-400 ring-4 ring-amber-400/30 shadow-xl shadow-amber-400/20 scale-110 hover:scale-110'
-                              : 'border-gray-600 hover:border-gray-500 shadow-lg hover:shadow-xl hover:scale-110'
-                          }`}
+                                ? 'border-amber-400 ring-4 ring-amber-400/30 shadow-xl shadow-amber-400/20 scale-110 hover:scale-110'
+                                : 'border-gray-600 hover:border-gray-500 shadow-lg hover:shadow-xl hover:scale-110'
+                            }`}
                           style={{
                             backgroundColor: colorInfo.hex,
                             borderColor: colorInfo.hex === '#ffffff' ? '#374151' : colorInfo.hex,
@@ -1001,13 +1020,12 @@ const ProductDetail = ({ initialProduct }) => {
                           key={index}
                           onClick={() => isAvailable && handleSizeSelect(size)}
                           disabled={!isAvailable}
-                          className={`group relative px-6 py-4 border-2 rounded-2xl font-bold text-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:ring-offset-gray-900 min-w-[80px] backdrop-blur-sm ${
-                            !isAvailable
+                          className={`group relative px-6 py-4 border-2 rounded-2xl font-bold text-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:ring-offset-gray-900 min-w-[80px] backdrop-blur-sm ${!isAvailable
                               ? 'opacity-50 cursor-not-allowed border-gray-700 bg-gray-800/50 text-gray-500'
                               : isSelected
-                              ? 'border-amber-400 bg-gradient-to-r from-amber-500/20 to-yellow-500/20 text-amber-200 shadow-xl shadow-amber-400/20 scale-105 hover:scale-105'
-                              : 'border-gray-600 hover:border-gray-500 bg-gradient-to-r from-gray-700/30 to-gray-800/50 text-gray-300 shadow-md hover:shadow-lg hover:scale-105'
-                          }`}
+                                ? 'border-amber-400 bg-gradient-to-r from-amber-500/20 to-yellow-500/20 text-amber-200 shadow-xl shadow-amber-400/20 scale-105 hover:scale-105'
+                                : 'border-gray-600 hover:border-gray-500 bg-gradient-to-r from-gray-700/30 to-gray-800/50 text-gray-300 shadow-md hover:shadow-lg hover:scale-105'
+                            }`}
                           whileHover={isAvailable ? { scale: 1.05 } : {}}
                           whileTap={isAvailable ? { scale: 0.95 } : {}}
                         >
@@ -1142,11 +1160,10 @@ const ProductDetail = ({ initialProduct }) => {
                 <div className="flex gap-4">
                   <motion.button
                     onClick={handleAddToCart}
-                    className={`flex-1 py-4 px-8 rounded-2xl font-bold text-lg transition-all flex items-center justify-center gap-3 shadow-xl backdrop-blur-sm ${
-                      !isValidSelection() || currentStock <= 0 || addingToCart
+                    className={`flex-1 py-4 px-8 rounded-2xl font-bold text-lg transition-all flex items-center justify-center gap-3 shadow-xl backdrop-blur-sm ${!isValidSelection() || currentStock <= 0 || addingToCart
                         ? 'bg-gradient-to-r from-gray-600/50 to-gray-700/50 cursor-not-allowed text-gray-400 border border-gray-600/30'
                         : 'bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 hover:from-blue-500 hover:via-purple-500 hover:to-blue-600 text-white border border-blue-500/30 shadow-blue-500/20'
-                    }`}
+                      }`}
                     whileHover={isValidSelection() && currentStock > 0 && !addingToCart ? { scale: 1.02 } : {}}
                     whileTap={isValidSelection() && currentStock > 0 && !addingToCart ? { scale: 0.98 } : {}}
                     disabled={!isValidSelection() || currentStock <= 0 || addingToCart}
@@ -1155,18 +1172,17 @@ const ProductDetail = ({ initialProduct }) => {
                     {addingToCart
                       ? 'Adding...'
                       : !isValidSelection()
-                      ? 'Select Options'
-                      : currentStock <= 0
-                      ? 'Out of Stock'
-                      : 'Add to Cart'}
+                        ? 'Select Options'
+                        : currentStock <= 0
+                          ? 'Out of Stock'
+                          : 'Add to Cart'}
                   </motion.button>
                   <motion.button
                     onClick={handleWishlist}
-                    className={`p-4 rounded-2xl border-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl backdrop-blur-sm ${
-                      isWishlisted
+                    className={`p-4 rounded-2xl border-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl backdrop-blur-sm ${isWishlisted
                         ? 'border-red-500/50 bg-gradient-to-r from-red-500/20 to-pink-500/20 text-red-300 hover:from-red-500/30 hover:to-pink-500/30'
                         : 'border-gray-600/50 hover:border-red-400/50 bg-gradient-to-r from-gray-700/30 to-gray-800/50 text-gray-400 hover:text-red-300'
-                    }`}
+                      }`}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     disabled={wishlistLoading}
@@ -1192,10 +1208,10 @@ const ProductDetail = ({ initialProduct }) => {
                         {!selectedColor && product.colors?.length > 0 && !selectedSize && product.sizes?.length > 0
                           ? 'Please select a color and size to continue'
                           : !selectedColor && product.colors?.length > 0
-                          ? 'Please select a color to continue'
-                          : !selectedSize && product.sizes?.length > 0
-                          ? 'Please select a size to continue'
-                          : 'Please make your selections to continue'}
+                            ? 'Please select a color to continue'
+                            : !selectedSize && product.sizes?.length > 0
+                              ? 'Please select a size to continue'
+                              : 'Please make your selections to continue'}
                       </span>
                     </div>
                   </motion.div>
