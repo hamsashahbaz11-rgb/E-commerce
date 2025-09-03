@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+
 const nextConfig = {
   images: {
     // This allows Next.js's Image component to optimize images from specified remote domains.

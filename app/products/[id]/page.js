@@ -436,13 +436,13 @@ const ProductDetail = () => {
   const [currentVariantKey, setCurrentVariantKey] = useState('');
 
   const getLocalStorageItem = (key) => {
-    if (typeof(window) !== 'undefined') {
+    if (typeof (window) !== 'undefined') {
       return localStorage.getItem(key);
     }
     return null;
   };
 
-   
+
 
   const generateVariantKey = (color, size) => {
     return `${color || 'no-color'}_${size || 'no-size'}`;
@@ -498,21 +498,27 @@ const ProductDetail = () => {
     if (quantity > maxStock) {
       setQuantity(Math.max(1, Math.min(quantity, maxStock)));
     }
-  }, [selectedColor, selectedSize]);
+  }, [selectedColor, selectedSize, getCurrentVariantStock, quantity]);
 
   useEffect(() => {
-     const fetchProduct = async () => {
+    const fetchProduct = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`/api/products/${params.id}`);
+        const res = await fetch(`/api/products/${params.id}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+        });
         const productData = await res.json();
         if (!res.ok || !productData.success || !productData.product) {
           return { notFound: true };
         }
-         console.log("Product fetched successfully:", productData.product);
+        console.log("Product fetched successfully:", productData.product);
         setProduct(productData.product);
         setLoading(false);
-        setError(null); 
+        setError(null);
       } catch (error) {
         return { notFound: true };
       }
@@ -527,7 +533,7 @@ const ProductDetail = () => {
         if (!userId || !token) return;
         const res = await fetch(`/api/wishlist/check?userId=${userId}&productId=${params.id}`, {
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        }); 
+        });
         if (res.ok) {
           const data = await res.json();
           setIsWishlisted(data.isWishlisted || false);
@@ -539,7 +545,7 @@ const ProductDetail = () => {
       }
     };
     checkWishlistStatus();
-  }, [ params.id]);
+  }, [params.id]);
 
   useEffect(() => {
     const fetchRelatedProducts = async () => {
@@ -820,8 +826,10 @@ const ProductDetail = () => {
                 animate={{ scale: 1 }}
                 transition={{ duration: 0.6 }}
               >
+
                 <Image
-                  src={product?.images?.[selectedImageIndex]?.url || product.images?.[0]?.url || '/placeholder.jpg'}
+                  priority={true}
+                  src={product?.images?.[selectedImageIndex]?.url || product.images?.[0]?.url || '/no-image.png'}
                   alt={`${product.name} - View ${selectedImageIndex + 1}`}
                   fill={true}
                   className="object-cover hover:scale-105 transition-transform duration-700 absolute"
@@ -856,14 +864,15 @@ const ProductDetail = () => {
                       key={index}
                       onClick={() => setSelectedImageIndex(index)}
                       className={`flex-shrink-0 w-20 h-20 rounded-2xl overflow-hidden border-2 transition-all ${selectedImageIndex === index
-                          ? 'border-amber-400 ring-2 ring-amber-400/50 shadow-xl shadow-amber-400/20'
-                          : 'border-gray-600/40 hover:border-gray-500/60 hover:shadow-lg'
+                        ? 'border-amber-400 ring-2 ring-amber-400/50 shadow-xl shadow-amber-400/20'
+                        : 'border-gray-600/40 hover:border-gray-500/60 hover:shadow-lg'
                         }`}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >
                       <Image
-                        src={image.url}
+                        src={image.url  || '/no-image.png'}
+                        priority={true}
                         alt={`${product.name} ${index + 1}`}
                         width={80}
                         height={80}
@@ -899,8 +908,8 @@ const ProductDetail = () => {
                 </span>
                 <span
                   className={`px-4 py-2 rounded-full text-sm font-medium backdrop-blur-sm border ${currentStock > 0
-                      ? 'bg-gradient-to-r from-emerald-500/20 to-green-500/20 text-emerald-300 border-emerald-500/20'
-                      : 'bg-gradient-to-r from-red-500/20 to-pink-500/20 text-red-300 border-red-500/20'
+                    ? 'bg-gradient-to-r from-emerald-500/20 to-green-500/20 text-emerald-300 border-emerald-500/20'
+                    : 'bg-gradient-to-r from-red-500/20 to-pink-500/20 text-red-300 border-red-500/20'
                     }`}
                 >
                   {currentStock > 0 ? `${currentStock} In Stock` : 'Out of Stock'}
@@ -959,10 +968,10 @@ const ProductDetail = () => {
                           onClick={() => isAvailable && handleColorSelect(color)}
                           disabled={!isAvailable}
                           className={`group relative w-16 h-16 rounded-2xl border-3 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:ring-offset-gray-900 ${!isAvailable
-                              ? 'opacity-50 cursor-not-allowed border-gray-700'
-                              : isSelected
-                                ? 'border-amber-400 ring-4 ring-amber-400/30 shadow-xl shadow-amber-400/20 scale-110 hover:scale-110'
-                                : 'border-gray-600 hover:border-gray-500 shadow-lg hover:shadow-xl hover:scale-110'
+                            ? 'opacity-50 cursor-not-allowed border-gray-700'
+                            : isSelected
+                              ? 'border-amber-400 ring-4 ring-amber-400/30 shadow-xl shadow-amber-400/20 scale-110 hover:scale-110'
+                              : 'border-gray-600 hover:border-gray-500 shadow-lg hover:shadow-xl hover:scale-110'
                             }`}
                           style={{
                             backgroundColor: colorInfo.hex,
@@ -1021,10 +1030,10 @@ const ProductDetail = () => {
                           onClick={() => isAvailable && handleSizeSelect(size)}
                           disabled={!isAvailable}
                           className={`group relative px-6 py-4 border-2 rounded-2xl font-bold text-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:ring-offset-gray-900 min-w-[80px] backdrop-blur-sm ${!isAvailable
-                              ? 'opacity-50 cursor-not-allowed border-gray-700 bg-gray-800/50 text-gray-500'
-                              : isSelected
-                                ? 'border-amber-400 bg-gradient-to-r from-amber-500/20 to-yellow-500/20 text-amber-200 shadow-xl shadow-amber-400/20 scale-105 hover:scale-105'
-                                : 'border-gray-600 hover:border-gray-500 bg-gradient-to-r from-gray-700/30 to-gray-800/50 text-gray-300 shadow-md hover:shadow-lg hover:scale-105'
+                            ? 'opacity-50 cursor-not-allowed border-gray-700 bg-gray-800/50 text-gray-500'
+                            : isSelected
+                              ? 'border-amber-400 bg-gradient-to-r from-amber-500/20 to-yellow-500/20 text-amber-200 shadow-xl shadow-amber-400/20 scale-105 hover:scale-105'
+                              : 'border-gray-600 hover:border-gray-500 bg-gradient-to-r from-gray-700/30 to-gray-800/50 text-gray-300 shadow-md hover:shadow-lg hover:scale-105'
                             }`}
                           whileHover={isAvailable ? { scale: 1.05 } : {}}
                           whileTap={isAvailable ? { scale: 0.95 } : {}}
@@ -1161,8 +1170,8 @@ const ProductDetail = () => {
                   <motion.button
                     onClick={handleAddToCart}
                     className={`flex-1 py-4 px-8 rounded-2xl font-bold text-lg transition-all flex items-center justify-center gap-3 shadow-xl backdrop-blur-sm ${!isValidSelection() || currentStock <= 0 || addingToCart
-                        ? 'bg-gradient-to-r from-gray-600/50 to-gray-700/50 cursor-not-allowed text-gray-400 border border-gray-600/30'
-                        : 'bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 hover:from-blue-500 hover:via-purple-500 hover:to-blue-600 text-white border border-blue-500/30 shadow-blue-500/20'
+                      ? 'bg-gradient-to-r from-gray-600/50 to-gray-700/50 cursor-not-allowed text-gray-400 border border-gray-600/30'
+                      : 'bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 hover:from-blue-500 hover:via-purple-500 hover:to-blue-600 text-white border border-blue-500/30 shadow-blue-500/20'
                       }`}
                     whileHover={isValidSelection() && currentStock > 0 && !addingToCart ? { scale: 1.02 } : {}}
                     whileTap={isValidSelection() && currentStock > 0 && !addingToCart ? { scale: 0.98 } : {}}
@@ -1180,8 +1189,8 @@ const ProductDetail = () => {
                   <motion.button
                     onClick={handleWishlist}
                     className={`p-4 rounded-2xl border-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl backdrop-blur-sm ${isWishlisted
-                        ? 'border-red-500/50 bg-gradient-to-r from-red-500/20 to-pink-500/20 text-red-300 hover:from-red-500/30 hover:to-pink-500/30'
-                        : 'border-gray-600/50 hover:border-red-400/50 bg-gradient-to-r from-gray-700/30 to-gray-800/50 text-gray-400 hover:text-red-300'
+                      ? 'border-red-500/50 bg-gradient-to-r from-red-500/20 to-pink-500/20 text-red-300 hover:from-red-500/30 hover:to-pink-500/30'
+                      : 'border-gray-600/50 hover:border-red-400/50 bg-gradient-to-r from-gray-700/30 to-gray-800/50 text-gray-400 hover:text-red-300'
                       }`}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -1404,7 +1413,8 @@ const ProductDetail = () => {
                 <div className="bg-gradient-to-br from-gray-800/50 via-gray-900/80 to-black/90 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-700/30 overflow-hidden transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-amber-400/10 group-hover:-translate-y-2 group-hover:border-amber-400/30">
                   <div className="relative h-48 w-full overflow-hidden">
                     <Image
-                      src={relatedProduct.images[0]?.url || '/placeholder.jpg'}
+                      priority={true}
+                      src={relatedProduct.images[0]?.url || '/no-image.png'}
                       alt={relatedProduct.name}
                       fill
                       className="object-cover transition-transform duration-700 group-hover:scale-110"

@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import Link from "next/link";
+import Link from "next/link"; 
 
 export default function AboutPage() {
   return (
@@ -30,16 +30,16 @@ export default function AboutPage() {
               <div>
                 <h2 className="text-2xl font-semibold mb-4 text-purple-400">Technology Stack</h2>
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-gray-900 p-3 rounded-lg border border-gray-700">
-                    <span className="text-sm font-medium">Next.js</span>
+                  <div className="bg-gray-900 p-3 rounded-lg border border-gray-700 hover:bg-gray-950 hover:text-md transform-2d duration-300">
+                    <span className="text-sm font-medium hover:text-md transform-2d duration-300">Next.js</span>
                   </div>
-                  <div className="bg-gray-900 p-3 rounded-lg border border-gray-700">
+                  <div className="bg-gray-900 p-3 rounded-lg border border-gray-700 hover:bg-gray-950 hover:text-md transform-2d duration-300">
                     <span className="text-sm font-medium">React</span>
                   </div>
-                  <div className="bg-gray-900 p-3 rounded-lg border border-gray-700">
+                  <div className="bg-gray-900 p-3 rounded-lg border border-gray-700 hover:bg-gray-950 hover:text-md transform-2d duration-300">
                     <span className="text-sm font-medium">Tailwind CSS</span>
                   </div>
-                  <div className="bg-gray-900 p-3 rounded-lg border border-gray-700">
+                  <div className="bg-gray-900 p-3 rounded-lg border border-gray-700 hover:bg-gray-950 hover:text-md transform-2d duration-300">
                     <span className="text-sm font-medium">MongoDB</span>
                   </div>
                 </div>
@@ -84,7 +84,7 @@ export default function AboutPage() {
           {/* Stats Section */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
             <div className="text-center bg-gray-900 p-6 rounded-lg border border-gray-700">
-              <div className="text-3xl font-bold text-blue-400 mb-2">2024</div>
+              <div className="text-3xl font-bold text-blue-400 mb-2">2025</div>
               <div className="text-gray-400 text-sm">Year Started</div>
             </div>
             <div className="text-center bg-gray-900 p-6 rounded-lg border border-gray-700">

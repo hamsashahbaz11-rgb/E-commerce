@@ -37,10 +37,7 @@ export default function CheckoutPage() {
   
   // Effects
   useEffect(() => {
-    fetchCartData();
-  }, []);
-
-  // Fetch cart data from API
+      // Fetch cart data from API
   const fetchCartData = async () => {
     try {
       const userId = localStorage.getItem('userId');
@@ -65,6 +62,10 @@ export default function CheckoutPage() {
       setLoading(false);
     }
   };
+    fetchCartData();
+  }, [router]);
+
+
 
   // Handle form input changes
   const handleInputChange = (e) => {

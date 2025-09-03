@@ -5,6 +5,9 @@ import React from 'react';
 import { FaGithub, FaGithubAlt, FaLinkedin, FaLinkedinIn } from 'react-icons/fa';
 
 const Footer = () => {
+  const socialLinks = [
+  { name:'About Us', link: "/about"},   { name:'Collections', link: "/products"},{ name: "Contact", link:'/auth/login'}, {name:'Support', link: `mailto:${process.env.NEXT_PUBLIC_EMAIL}`}
+  ]
   return (
     <footer className="relative bg-gradient-to-b from-black via-gray-900 to-black border-t border-gray-800 overflow-hidden">
       {/* Ambient glow effects */}
@@ -67,11 +70,13 @@ const Footer = () => {
           {/* Quick Links */}
           <div>
             <h4 className="text-white font-semibold text-lg mb-6">Quick Links</h4>
-            <ul className="space-y-3">
-              {['About Us', 'Collections', 'Contact', 'Support'].map((link) => (
-                <li key={link} href="#" className="text-gray-400 hover:text-white transition-colors duration-300 hover:translate-x-1 inline-block">
-                  {link}
+            <ul className="space-y-3 flex flex-col">
+              {socialLinks.map((item) => (
+                <Link key={item.link} href={item.link} >
+                <li className="text-gray-400 hover:text-white transition-colors duration-300 hover:translate-x-1 inline-block ">
+                  {item.name}
                 </li>
+                </Link>
               ))}
             </ul>
           </div>
@@ -104,11 +109,11 @@ const Footer = () => {
             <div className="flex items-center space-x-4 text-gray-400 flex-wrap flex-col md:flex-row">
               <span>Crafted with excellence by</span>
               <Link
-                href="mailto:email@gmail.com"
+                href={`mailto:${process.env.NEXT_PUBLIC_EMAIL}`}
                 className="text-purple-400 hover:text-purple-300 font-medium transition-colors duration-300 hover:underline"
               >
-                {process.env.NEXT_PUBLIC_EMAIL}@gmail.com
-              </Link>
+                {process.env.NEXT_PUBLIC_EMAIL}
+                            </Link>
             </div>
           </div>
         </div>
