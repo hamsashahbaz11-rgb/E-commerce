@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import Image from 'next/image';
 
-const  Checkout = ()=> {
+const Checkout = ()=> {
   const router = useRouter();
   
   // Form state

@@ -643,7 +643,7 @@ const Cart = () => {
               </div>
             </div>
 
-                <Link href={"/checkout"} prefetch={true}>
+                <Link href={"/Checkout"} prefetch={true}>
             <motion.button
               className="w-full bg-blue-600 text-white py-3 rounded-lg mt-6 hover:bg-blue-500 transition duration-300 font-semibold text-lg"
               whileHover={{ scale: 1.02 }}

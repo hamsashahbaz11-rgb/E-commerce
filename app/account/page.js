@@ -81,7 +81,7 @@ const StyledWrapper = styled.div`
   }`;
 
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import styled from 'styled-components';
 import {
   FaUser,
@@ -259,114 +259,222 @@ const AccountPage = () => {
             `}>{order.isPaid ? 'Amount Paid' : 'Not Paid'}</span>
           </div>
         </div>
-        <button onClick={() => {
-          setShowReasonModal(!showReasonModal)
-        }}>
+        
+      {/* Trigger Button */}
+        <div className="relative flex flex-row overflow-hidden bg-gradient-to-r from-red-600 via-red-700 to-red-800 text-white font-semibold  p-4 rounded-xl shadow-2xl transition-all duration-300 hover:shadow-red-500/25 border border-red-500/30" onClick={() => setShowReasonModal(!showReasonModal)}>
+          <svg className="w-1 h-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+          </svg>
 
-          Returning Request</button>
+          <span>Return Request</span>
+
+          </div>
+       
+  <AnimatePresence>
         {showReasonModal && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-gray-900 text-white rounded-lg shadow-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-700"
-          >
-
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-              <div className="bg-white rounded-lg max-w-md w-full p-6 transform transition-all duration-300 scale-100">
-                <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900">Return Order</h3>
-                  <button
-                    className="text-gray-400 hover:text-gray-600 transition-colors"
-                    disabled={loading}
-                  >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Reason for return *
-                  </label>
-                  <div className="space-y-2">
-                    {predefinedReasons.map((reasonOption) => (
-                      <label key={reasonOption} className="flex items-center">
-                        <input
-                          type="radio"
-                          name="reason"
-                          value={reasonOption}
-                          checked={selectedReason === reasonOption}
-                          onChange={(e) => handleReasonChange(e.target.value)}
-                          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                        />
-                        <span className="ml-2 text-sm text-gray-700">{reasonOption}</span>
-                      </label>
-                    ))}
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className=" inset-0 bg-black/80 backdrop-blur-sm z-50"
+              onClick={() => setShowReasonModal(false)}
+            />
+            
+            {/* Modal Container */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 50 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 50 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className=" inset-0 flex items-center justify-center  z-50 p-4"
+            >
+              <div className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-black rounded-2xl max-w-4xl w-full border border-gray-700/50 shadow-2xl overflow-hidden">
+                {/* Animated Border Glow */}
+                <div className="absolute inset-0 bg-gradient-to-r from-red-500/20 via-purple-500/20 to-blue-500/20 rounded-2xl blur-xl"></div>
+                
+                {/* Content */}
+                <div className="relative bg-gray-900/95 backdrop-blur-xl rounded-2xl p-6 border border-gray-700/30">
+                  {/* Header */}
+                  <div className="flex justify-between items-center flex-row mb-6">
+                    <motion.h3 
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      className="text-2xl font-bold bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent"
+                    >
+                      Return Order
+                    </motion.h3>
+                    <motion.button
+                      whileHover={{ rotate: 90, scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      type='button'
+                       onClick={() => setShowReasonModal(false)}
+                      className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-full transition-all duration-200" 
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </motion.button>
                   </div>
-                </div>
 
-                {selectedReason === 'Other' && (
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Please specify
+                  {/* Reason Selection */}
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="mb-6"
+                  >
+                    <label className=" text-sm font-semibold text-gray-200 mb-4 flex items-center">
+                      <span className="bg-gradient-to-r from-red-400 to-red-600 w-2 h-2 rounded-full mr-2"></span>
+                      Reason for return *
                     </label>
-                    <textarea
-                      value={reason}
-                      onChange={(e) => setReason(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-bla"
-                      rows="3"
-                      placeholder="Please provide details..."
-                      required
-                    />
-                  </div>
-                )}
-
-                <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
-                  <div className="flex">
-                    <div className="ml-3">
-                      <p className="text-sm text-yellow-700">
-                        <strong>Return Policy:</strong> Returns are accepted within 30 days of delivery.
-                        Items must be in original condition with tags attached.
-                      </p>
+                    <div className="space-y-3">
+                      {predefinedReasons.map((reasonOption, index) => (
+                        <motion.label
+                          key={reasonOption}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.1 + index * 0.05 }}
+                          className="flex items-center p-3 rounded-xl bg-gray-800/50 hover:bg-gray-700/50 transition-all duration-200 cursor-pointer group border border-transparent hover:border-gray-600/50"
+                          whileHover={{ x: 4 }}
+                        >
+                          <div className="relative">
+                            <input
+                              type="radio"
+                              name="reason"
+                              value={reasonOption}
+                              checked={selectedReason === reasonOption}
+                              onChange={(e) => handleReasonChange(e.target.value)}
+                              className="sr-only"
+                            />
+                            <div className={`w-5 h-5 rounded-full flex justify-center items-center border-2 transition-all duration-200 ${
+                              selectedReason === reasonOption 
+                                ? 'border-red-500 bg-red-500' 
+                                : 'border-gray-500 group-hover:border-red-400'
+                            }`}>
+                              {selectedReason === reasonOption && (
+                                <motion.div
+                                  initial={{ scale: 0 }}
+                                  animate={{ scale: 1 }}
+                                  className="w-2 h-2 bg-white rounded-full m-0.5 "
+                                />
+                              )}
+                            </div>
+                          </div>
+                          <span className="ml-3 text-sm text-gray-200 group-hover:text-white transition-colors">
+                            {reasonOption}
+                          </span>
+                        </motion.label>
+                      ))}
                     </div>
-                  </div>
-                </div>
+                  </motion.div>
 
-                <div className="flex gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setShowReasonModal(false)}
-                    className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors"
+                  {/* Other Reason Textarea */}
+                  <AnimatePresence>
+                    {selectedReason === 'Other' && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="mb-6 overflow-hidden"
+                      >
+                        <label className="block text-sm font-semibold text-gray-200 mb-2">
+                          Please specify
+                        </label>
+                        <textarea
+                          value={reason}
+                          onChange={(e) => setReason(e.target.value)}
+                          className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600/50 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all duration-200 resize-none"
+                          rows="3"
+                          placeholder="Please provide details..."
+                          required
+                        />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
 
+                  {/* Policy Notice */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="bg-gradient-to-r from-yellow-500/10 via-amber-500/10 to-orange-500/10 border border-yellow-500/30 rounded-xl p-4 mb-6"
                   >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    // disabled={!selectedReason || (selectedReason === 'Other' && !reason.trim()) || loading}
-                    onClick={() => handleSubmitReturningRequest(order._id)}
-
-                    className="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
-                  >
-                    {/* {loading ? (
-                      <>
-                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <div className="flex items-start">
+                      <div className="flex-shrink-0">
+                        <svg className="w-5 h-5 text-yellow-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.502 0L4.732 15.5c-.77.833.192 2.5 1.732 2.5z" />
                         </svg>
-                        Processing...
-                      </>
-                    ) :
-                     ( */}
-                    &apos;Submit Return Request&apos;
-                    {/* )} */}
-                  </button>
-                </div>
+                      </div>
+                      <div className="ml-3">
+                        <p className="text-sm text-yellow-200">
+                          <span className="font-semibold">Return Policy:</span> Returns are accepted within 30 days of delivery.
+                          Items must be in original condition with tags attached.
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
 
+                  {/* Action Buttons */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="flex gap-3"
+                  >
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      type="button"
+                      onClick={() => setShowReasonModal(false)}
+                      className="flex-1 px-4 py-3 text-sm font-semibold text-gray-300 bg-gray-800/50 border border-gray-600/50 rounded-xl hover:bg-gray-700/50 hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-500/50 transition-all duration-200"
+                    >
+                      Cancel
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: loading ? 1 : 1.02, boxShadow: loading ? "none" : "0 10px 30px rgba(239, 68, 68, 0.4)" }}
+                      whileTap={{ scale: loading ? 1 : 0.98 }}
+                      type="submit"
+                      disabled={!selectedReason || (selectedReason === 'Other' && !reason.trim())}
+                      onClick={() => handleSubmitReturningRequest(order._id)}
+                       // disabled={!selectedReason || (selectedReason === 'Other' && !reason.trim()) || loading}
+                   
+                      className="flex-1 px-4 py-3 text-sm font-semibold text-white bg-gradient-to-r from-red-600 to-red-700 border border-red-500/50 rounded-xl hover:from-red-500 hover:to-red-600 focus:outline-none focus:ring-2 focus:ring-red-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center relative overflow-hidden"
+                    >
+                      {loading && (
+                        <div className="absolute inset-0 bg-gradient-to-r from-red-600 to-red-700">
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse"></div>
+                        </div>
+                      )}
+                      <div className="relative flex items-center">
+                        {loading ? (
+                          <>
+                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Processing...
+                          </>
+                        ) : (
+                          <>
+                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                            </svg>
+                            Submit Return Request
+                          </>
+                        )}
+                      </div>
+                    </motion.button>
+                  </motion.div>
+                </div>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          </>
         )}
+      </AnimatePresence>
+    
+
         {renderOrderItems(order.items)}
         <div className="mt-4 pt-4 border-t border-gray-200">
           <p className="text-gray-600">Total: ${order.totalPrice}</p>
