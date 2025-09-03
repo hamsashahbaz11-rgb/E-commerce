@@ -22,7 +22,6 @@ export async function generateMetadata({ params }) {
     title: `${product.name} - H-ecommerce`,
     description: product.description,
     keywords: `${product.category}, ${product.subcategory}, ${product.brand}, online shopping`,
-    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
 
     openGraph: {
 
